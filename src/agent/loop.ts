@@ -28,8 +28,10 @@ export async function agentLoop(
       system,
       tools,
       messages,
-      maxRetries: 0, 
-      onError: () => { }
+      maxRetries: 0,
+      onError: ({ error }) => {
+        console.error('\n  [模型错误]', error);
+      }
     });
 
     let hasToolCall = false;
@@ -51,7 +53,7 @@ export async function agentLoop(
 
           const detection = detect(part.toolName, part.input);
           if (detection.stuck) {
-            console.log(`看看这里是什么：  ${detection.message}`);
+            console.log(`${detection.message}`);
             if (detection.level === 'critical') {
               shouldBreak = true;
             } else {
@@ -70,6 +72,7 @@ export async function agentLoop(
             recordResult(lastToolCall.name, lastToolCall.input, part.output);
           }
           break;
+
       }
     }
 
@@ -78,8 +81,17 @@ export async function agentLoop(
       break;
     }
 
+    // 模型报错 / 流中断时 result.response 会 reject（NoOutputGeneratedError），
+    // 这里必须兜住，否则整个进程会崩掉
+    let stepResult;
+    try {
+      stepResult = await result.response;
+    } catch (error) {
+      console.error('\n[本步没有拿到模型输出，已停止]', error);
+      break;
+    }
+
     // 拿到这一步的完整结果，追加到消息历史
-    const stepResult = await result.response;
     messages.push(...stepResult.messages);
 
     // 退出条件：模型没有调用任何工具，说明它认为可以直接回复了
