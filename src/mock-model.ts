@@ -40,11 +40,7 @@ function hasToolResults(prompt: any[]): boolean {
 
 function detectToolIntent(prompt: any[]): ToolCallIntent | null {
 
-  console.log('prompt', JSON.stringify(prompt));
-
   const text = extractUserText(prompt);
-
-  console.log('text', text);
 
   if (text.includes('测试死循环') || text.includes('test dead loop')) {
     return { toolName: 'get_weather', args: { city: '北京' } };
