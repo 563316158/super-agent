@@ -3,8 +3,8 @@ import { streamText, stepCountIs, type ModelMessage } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createMockModel } from './mock-model';
 import { createInterface } from 'node:readline';
-import { weatherTool, calculatorTool } from './tools/utility-tools';
-import { agentLoop , type BudgetState} from './agent/loop';
+import { weatherTool, calculatorTool } from './tools';
+import { agentLoop , type BudgetState} from './agent-loop';
 
 const qwen = createOpenAI({
     baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
